@@ -1,0 +1,23 @@
+{
+  "name": "workspace-mcp",
+  "version": "0.1.0",
+  "description": "Google Workspace MCP server — use Google Docs, Drive, Gmail, Calendar, Chat, Sheets, Slides from any MCP-compatible AI agent",
+  "license": "MIT",
+  "bin": {
+    "workspace-mcp": "bin/workspace-mcp.js"
+  },
+  "files": [
+    "bin/"
+  ],
+  "keywords": [
+    "mcp",
+    "google-workspace",
+    "gmail",
+    "google-docs",
+    "google-drive",
+    "google-calendar",
+    "google-chat",
+    "google-sheets",
+    "google-slides"
+  ]
+}
