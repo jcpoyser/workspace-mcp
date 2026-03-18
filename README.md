@@ -13,7 +13,7 @@ Add to your MCP client config (Claude Code, Cursor, Windsurf, etc.):
   "mcpServers": {
     "google-workspace": {
       "command": "npx",
-      "args": ["-y", "github:wedow/workspace-mcp"]
+      "args": ["-y", "github:jcpoyser/workspace-mcp"]
     }
   }
 }
@@ -22,7 +22,7 @@ Add to your MCP client config (Claude Code, Cursor, Windsurf, etc.):
 For Codex:
 
 ```sh
-codex mcp add google-workspace -- npx -y github:wedow/workspace-mcp
+codex mcp add google-workspace -- npx -y github:jcpoyser/workspace-mcp
 ```
 
 On first run, it clones and builds the upstream extension (~30s). Subsequent starts are instant.
@@ -32,7 +32,7 @@ On first run, it clones and builds the upstream extension (~30s). Subsequent sta
 The server uses Google OAuth. On first tool call, it opens a browser for authentication. For headless environments:
 
 ```sh
-npx -y github:wedow/workspace-mcp login
+npx -y github:jcpoyser/workspace-mcp login
 ```
 
 ## Commands
