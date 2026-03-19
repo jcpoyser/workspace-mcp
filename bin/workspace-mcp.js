@@ -26,7 +26,13 @@ function log(msg) {
 }
 
 function run(cmd, opts) {
-  execSync(cmd, { stdio: ['ignore', 'pipe', 'pipe'], ...opts });
+  try {
+    execSync(cmd, { stdio: ['ignore', 'pipe', 'pipe'], ...opts });
+  } catch (err) {
+    if (err.stderr?.length) process.stderr.write(err.stderr);
+    if (err.stdout?.length) process.stderr.write(err.stdout);
+    throw err;
+  }
 }
 
 function needsBuild() {
@@ -41,6 +47,9 @@ function ensureBuilt() {
   fs.mkdirSync(CACHE_DIR, { recursive: true });
 
   if (!fs.existsSync(path.join(REPO_DIR, '.git'))) {
+    if (fs.existsSync(REPO_DIR)) {
+      fs.rmSync(REPO_DIR, { recursive: true, force: true }); // clear any partial clone
+    }
     log('Cloning workspace extension...');
     run(`git clone --depth 1 ${REPO_URL} ${REPO_DIR}`);
   } else if (needsBuild()) {
@@ -75,7 +84,8 @@ function main() {
   }
 
   if (args.includes('--update')) {
-    log('Forcing update...');
+    log('Forcing re-clone...');
+    try { fs.rmSync(REPO_DIR, { recursive: true, force: true }); } catch {}
     try { fs.unlinkSync(STAMP_FILE); } catch {}
     ensureBuilt();
     log('Update complete.');
@@ -88,7 +98,7 @@ function main() {
 Usage:
   workspace-mcp           Start the MCP server (stdio transport)
   workspace-mcp login     Run interactive OAuth login
-  workspace-mcp --update  Force re-clone and rebuild
+  workspace-mcp --update  Re-clone and rebuild from upstream
   workspace-mcp --help    Show this help
 
 MCP client configuration example (Claude Code, Cursor, etc.):
@@ -96,7 +106,7 @@ MCP client configuration example (Claude Code, Cursor, etc.):
     "mcpServers": {
       "google-workspace": {
         "command": "npx",
-        "args": ["-y", "github:wedow/workspace-mcp"]
+        "args": ["-y", "github:jcpoyser/workspace-mcp"]
       }
     }
   }
@@ -116,12 +126,12 @@ Environment variables:
     env: process.env,
   });
 
-  child.on('exit', (code) => process.exit(code ?? 0));
-
-  // Forward signals
+  // Register signal handlers immediately after spawn
   for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
     process.on(sig, () => child.kill(sig));
   }
+
+  child.on('exit', (code) => process.exit(code ?? 0));
 }
 
 main();
