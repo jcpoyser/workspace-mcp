@@ -6,6 +6,7 @@ const path = require('node:path');
 
 const {
   DEFAULT_UPSTREAM_REF,
+  hasGitCheckout,
   helpText,
   isPinnedRef,
   needsBuild,
@@ -57,6 +58,17 @@ test('resolvePaths scopes cache by upstream ref', () => {
   assert.match(paths.distEntry, /workspace-server\/dist\/index\.js$/);
 });
 
+test('hasGitCheckout rejects partial clones', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'workspace-mcp-test-'));
+  const paths = {
+    repoDir: tmp,
+  };
+
+  assert.equal(hasGitCheckout(paths), false);
+  fs.mkdirSync(path.join(tmp, '.git'));
+  assert.equal(hasGitCheckout(paths), true);
+});
+
 test('needsBuild returns false for healthy pinned refs', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'workspace-mcp-test-'));
   const paths = {
@@ -71,6 +83,24 @@ test('needsBuild returns false for healthy pinned refs', () => {
   fs.writeFileSync(paths.stampFile, new Date().toISOString());
 
   assert.equal(needsBuild(paths, 'v0.0.7'), false);
+});
+
+test('needsBuild returns true for stale moving refs', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'workspace-mcp-test-'));
+  const paths = {
+    distEntry: path.join(tmp, 'dist', 'index.js'),
+    headlessEntry: path.join(tmp, 'dist', 'headless-login.js'),
+    stampFile: path.join(tmp, '.stamp'),
+  };
+
+  fs.mkdirSync(path.dirname(paths.distEntry), { recursive: true });
+  fs.writeFileSync(paths.distEntry, '');
+  fs.writeFileSync(paths.headlessEntry, '');
+  fs.writeFileSync(paths.stampFile, new Date().toISOString());
+  const stale = Date.now() - 25 * 60 * 60 * 1000;
+  fs.utimesSync(paths.stampFile, stale / 1000, stale / 1000);
+
+  assert.equal(needsBuild(paths, 'preview-2026-03-16'), true);
 });
 
 test('validateBuiltArtifacts throws when upstream layout is missing files', () => {
