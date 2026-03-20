@@ -7,6 +7,9 @@
     "type": "git",
     "url": "https://github.com/jcpoyser/workspace-mcp.git"
   },
+  "scripts": {
+    "test": "node --test"
+  },
   "engines": {
     "node": ">=18"
   },
@@ -14,7 +17,8 @@
     "workspace-mcp": "bin/workspace-mcp.js"
   },
   "files": [
-    "bin/"
+    "bin/",
+    "lib/"
   ],
   "keywords": [
     "mcp",
