@@ -8,7 +8,8 @@
     "url": "https://github.com/jcpoyser/workspace-mcp.git"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "brief": "node scripts/morning-brief.mjs"
   },
   "engines": {
     "node": ">=18"
@@ -18,8 +19,13 @@
   },
   "files": [
     "bin/",
-    "lib/"
+    "lib/",
+    "scripts/"
   ],
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
   "keywords": [
     "mcp",
     "google-workspace",
